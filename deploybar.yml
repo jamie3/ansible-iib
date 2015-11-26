@@ -1,0 +1,13 @@
+---
+- name: deploy bar file to ibm integration bus
+  hosts: localhost
+  
+  tasks:
+
+  - name: copy bar file to remote server
+    copy: src=MyBarFile.bar dest=/tmp/MyBarFile.bar
+
+  - name: deploy bar
+    shell: mqsideploy -q IB9NODE -e default -a /tmp/MyBarFile.bar
+
+     
