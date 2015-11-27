@@ -1,13 +1,14 @@
 ---
 - name: deploy bar file to ibm integration bus
-  hosts: localhost
+  hosts: 10.0.0.5
+  remote_user: jamie
+  become: yes
+  become_user: mqm
   
   tasks:
 
   - name: copy bar file to remote server
-    copy: src=MyBarFile.bar dest=/tmp/MyBarFile.bar
+    copy: src=MyBarFile.bar dest=~/MyBarFile.bar
 
   - name: deploy bar
-    shell: mqsideploy -q IB9NODE -e default -a /tmp/MyBarFile.bar
-
-     
+    shell: source /opt/ibm/mqsi/9.0.0.4/bin/mqsiprofile && mqsideploy -q IB9QMGR -e default -a ~/MyBarFile.bar
