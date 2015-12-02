@@ -1,0 +1,29 @@
+#
+# A generic ansible playbook for deploying a bar file to IIB. This script works in conjunction with the deploy-bar.sh file
+# 
+# Note: You need to add the artifactory server name
+#
+
+--
+- hosts: '{{ hosts }}'
+  become: yes
+  become_user: mqm
+
+  vars_prompt:
+  - name: "version"
+    prompt: "Deploy version?"
+    private: no
+
+  tasks:
+
+  - name: download bar file from artifactory
+    get_url: url=http://artifactory:9090/artifactory/someRepo/com/example/iib/{{ app }}/{{ version }}/{{ app }}-{{ version }}.bar dest=~/
+
+  - name: stop previous application
+    shell: source /opt/ibm/mqsi/9.0.0.4/bin/mqsiprofile && /opt/ibm/mqsi/9.0.0.4/bin/mqsistopmsgflow -q {{ qm }} -e {{ eg }} -k {{ app }}
+
+  - name: deploy application
+    shell: source /opt/ibm/mqsi/9.0.0.4/bin/mqsiprofile && /opt/ibm/mqsi/9.0.0.4/bin/mqsideploy -q {{ qm }} -e {{ eg }} -a ~/{{ app }}-{{ version }}.bar
+
+  - name: start application
+    shell: source /opt/ibm/mqsi/9.0.0.4/bin/mqsiprofile && /opt/ibm/mqsi/9.0.0.4/bin/mqsistartmsgflow -q {{ qm }} -e {{ eg }} -k {{ app }}
